@@ -637,7 +637,13 @@ return {
 		dependencies = { "junegunn/limelight.vim" },
 	},
 	{
-		"folke/snacks.nvim",
-		opts = {},
+		"chrisgrieser/nvim-spider",
+		lazy = true,
+		opts = {
+			skipInsignificantPunctuation = false,
+			consistentOperatorPending = true,
+			subwordMovement = true,
+			customPatterns = {},
+		},
 	},
 }

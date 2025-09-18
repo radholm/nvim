@@ -1,8 +1,19 @@
-local lspconfig = require("lspconfig")
 local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-lspconfig.lua_ls.setup({
+vim.lsp.enable({
+	"clangd",
+	"efm",
+	"groovyls",
+	"lua_ls",
+	"rust_analyzer",
+	"ts_ls",
+})
+
+G.lsp("*", {
 	capabilities = capabilities,
+})
+
+G.lsp("lua_ls", {
 	settings = {
 		Lua = {
 			diagnostics = {
@@ -19,8 +30,7 @@ lspconfig.lua_ls.setup({
 	},
 })
 
-lspconfig.ts_ls.setup({
-	capabilities = capabilities,
+G.lsp("ts_ls", {
 	handlers = {
 		["textDocument/publishDiagnostics"] = function(_, result, ctx)
 			if result.diagnostics == nil then
@@ -36,8 +46,7 @@ lspconfig.ts_ls.setup({
 	},
 })
 
-lspconfig.groovyls.setup({
-	capabilities = capabilities,
+G.lsp("groovyls", {
 	cmd = { "groovy-language-server" },
 	on_attach = function(client, bufnr)
 		local function get_gradle_classpath()
@@ -59,14 +68,6 @@ lspconfig.groovyls.setup({
 		client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
 		vim.notify("Groovy classpath generated", vim.log.levels.INFO, { title = "Groovy LS" })
 	end,
-})
-
-lspconfig.clangd.setup({
-	capabilities = capabilities,
-})
-
-lspconfig.rust_analyzer.setup({
-	capabilities = capabilities,
 })
 
 -- https://github.com/creativenull/efmls-configs-nvim/tree/main/lua/efmls-configs
@@ -107,8 +108,7 @@ local languages = {
 	zsh = { shfmt },
 }
 
-lspconfig.efm.setup({
-	capabilities = capabilities,
+G.lsp("efm", {
 	filetypes = vim.tbl_keys(languages),
 	single_file_support = true,
 	init_options = {
