@@ -3,25 +3,7 @@ return {
 		"RRethy/base16-nvim",
 	},
 	{
-		"nvim-tree/nvim-web-devicons",
-		opts = {
-			color_icons = false,
-		},
-	},
-	{
-		"nickkadutskyi/jb.nvim",
-		lazy = false,
-		priority = 1000,
-		opts = {
-			transparent = false,
-		},
-	},
-	{
 		"echasnovski/mini.nvim",
-	},
-	{
-		"nvim-lua/plenary.nvim",
-		branch = "master",
 	},
 	{
 		"tpope/vim-fugitive",
@@ -30,18 +12,26 @@ return {
 		"github/copilot.vim",
 	},
 	{
+		"neovim/nvim-lspconfig",
+	},
+	{
+		"creativenull/efmls-configs-nvim",
+	},
+	{
+		"nvim-lua/plenary.nvim",
+		branch = "master",
+	},
+	{
 		"r0nsha/qfpreview.nvim",
+		opts = {},
+	},
+	{
+		"chomosuke/typst-preview.nvim",
 		opts = {},
 	},
 	{
 		"mason-org/mason.nvim",
 		opts = {},
-	},
-	{
-		"neovim/nvim-lspconfig",
-		dependencies = {
-			"creativenull/efmls-configs-nvim",
-		},
 	},
 	{
 		"jake-stewart/multicursor.nvim",
@@ -54,6 +44,20 @@ return {
 		event = "InsertEnter",
 		opts = {
 			enable_check_bracket_line = false,
+		},
+	},
+	{
+		"nvim-tree/nvim-web-devicons",
+		opts = {
+			color_icons = false,
+		},
+	},
+	{
+		"nickkadutskyi/jb.nvim",
+		lazy = false,
+		priority = 1000,
+		opts = {
+			transparent = false,
 		},
 	},
 	{
@@ -620,11 +624,6 @@ return {
 				enable_close_on_slash = true,
 			},
 		},
-	},
-	{
-		"chomosuke/typst-preview.nvim",
-		lazy = false,
-		opts = {},
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",

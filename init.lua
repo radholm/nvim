@@ -1,4 +1,5 @@
 require("globals")
+require("sessions")
 require("config.lazy")
 require("config.theme")
 require("config.lsp")
@@ -90,10 +91,8 @@ set.fillchars = {
 	vert = " ",
 }
 
-local yank_group = G.augroup("HighlightYank", {})
-
 G.autocmd("TextYankPost", {
-	group = yank_group,
+	group = G.augroup("HighlightYank", {}),
 	pattern = "*",
 	callback = function()
 		vim.highlight.on_yank({
@@ -103,18 +102,9 @@ G.autocmd("TextYankPost", {
 	end,
 })
 
-local function set_warp_title()
-	local title = vim.fn.expand("%:t")
-	if title == "" then
-		title = "[No Name]"
-	end
-	io.stderr:write(string.format("\027]0;%s\007", title))
-	io.stderr:flush()
-end
-
 G.autocmd({ "BufEnter" }, {
 	pattern = { "*.*" },
-	callback = set_warp_title,
+	callback = G.set_warp_title,
 })
 
 G.autocmd({ "BufWritePre", "FileChangedRO", "FileChangedShell" }, {
@@ -134,12 +124,6 @@ G.autocmd("BufWinEnter", {
 	pattern = { "*.*" },
 	desc = "load view (folds), when opening file",
 	command = "silent! loadview",
-})
-
-G.autocmd("BufRead", {
-	callback = function()
-		require("gitsigns").refresh()
-	end,
 })
 
 G.autocmd("BufEnter", {
@@ -209,15 +193,6 @@ G.autocmd("BufWritePre", {
 	end,
 })
 
-G.autocmd("BufWritePost", {
-	callback = function(args)
-		local filename = vim.fn.fnamemodify(args.file, ":t")
-		vim.notify("File written: " .. filename, vim.log.levels.INFO, {
-			timeout = 1000,
-		})
-	end,
-})
-
 G.usercmd("Rfinder", function()
 	local path = vim.api.nvim_buf_get_name(0)
 	os.execute("open -R " .. path)
@@ -239,44 +214,8 @@ G.autocmd("User", {
 	end,
 })
 
--- Session management
-
-local function get_session_name()
-	local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-	local root = (git_root and git_root ~= "" and not git_root:match("fatal")) and git_root or vim.loop.cwd()
-	local folder_name = root:match("^.+/(.+)$") or root
-	local name = folder_name:gsub("[^%w_-]", "_"):lower()
-	return name
-end
-
-local session_name = get_session_name()
-local shared = vim.fn.stdpath("data")
-
-local session_file = string.format("%s/%s.vim", shared .. "/sessions", session_name)
-local shada_file = string.format("%s/%s.shada", shared .. "/shada", session_name)
-
-vim.fn.mkdir(shared .. "/sessions", "p")
-vim.fn.mkdir(shared .. "/shada", "p")
-
-G.autocmd("VimEnter", {
+G.autocmd({ "FocusLost", "BufLeave", "CompleteDone", "InsertLeave", "TextChanged" }, {
 	callback = function()
-		if vim.fn.filereadable(session_file) == 1 then
-			vim.cmd.source(session_file)
-			vim.notify("Session loaded: " .. session_name, vim.log.levels.INFO, { timeout = 1000 })
-		end
-		if vim.fn.filereadable(shada_file) == 1 then
-			vim.cmd.rshada(shada_file)
-			vim.notify("Shada loaded: " .. session_name, vim.log.levels.INFO, { timeout = 1000 })
-		end
-
-		require("config.theme").apply_hls()
-		set_warp_title()
-	end,
-})
-
-G.autocmd("VimLeave", {
-	callback = function()
-		vim.cmd("silent! mksession! " .. session_file)
-		vim.cmd("silent! wshada! " .. shada_file)
+		vim.cmd("silent! wall!")
 	end,
 })
