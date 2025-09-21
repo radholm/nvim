@@ -196,17 +196,11 @@ return {
 				theme = "auto",
 				component_separators = { left = "", right = "" },
 				section_separators = { left = "", right = "" },
-				disabled_filetypes = {
-					statusline = {},
-					winbar = {},
-				},
 				ignore_focus = {},
 				always_divide_middle = true,
 				globalstatus = false,
 				refresh = {
-					statusline = 1000,
-					tabline = 1000,
-					winbar = 1000,
+					statusline = 100,
 				},
 			},
 			sections = {
@@ -227,15 +221,15 @@ return {
 						"filename",
 						path = 1,
 						symbols = {
-							modified = "[+]",
-							readonly = "[-]",
-							unnamed = "[No Name]",
-							newfile = "[New]",
+							modified = "[ + ]",
+							readonly = "[ - ]",
+							unnamed = "",
+							newfile = "[ New ]",
 						},
 					},
 				},
 				lualine_c = {
-					"lsp_status",
+					G.get_lsp_server_name,
 					{
 						"diagnostics",
 						symbols = { error = "E", warn = "W", info = "I", hint = "H" },
