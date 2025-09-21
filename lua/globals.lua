@@ -13,7 +13,7 @@ _G.G = {
 		io.stderr:flush()
 	end,
 	get_lsp_server_name = function()
-		local buf_clients = vim.lsp.get_active_clients({ bufnr = 0 })
+		local buf_clients = vim.lsp.get_clients({ bufnr = 0 })
 		if next(buf_clients) == nil then
 			return "No LSP"
 		end
@@ -25,6 +25,7 @@ _G.G = {
 			["rust_analyzer"] = "rust",
 			["ts_ls"] = "js ts",
 			["GitHub Copilot"] = "copilot",
+			["render-markdown"] = "md",
 		}
 		local names = {}
 		for _, client in pairs(buf_clients) do

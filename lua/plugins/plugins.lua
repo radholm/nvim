@@ -109,8 +109,8 @@ return {
 					auto_show = true,
 					draw = {
 						columns = {
-							-- { "kind_icon", "label", gap = 1 },
-							{ "label", gap = 1 },
+							{ "kind_icon", "label", gap = 1 },
+							-- { "label", gap = 1 },
 							{ "kind", "label_description", gap = 1 },
 						},
 					},
@@ -176,6 +176,8 @@ return {
 					enable_preview = true,
 				},
 				buffers = {
+					ignore_current_buffer = true,
+					sort_lastused = true,
 					mappings = {
 						n = {
 							["dd"] = require("telescope.actions").delete_buffer,

@@ -214,6 +214,20 @@ G.autocmd("User", {
 	end,
 })
 
+G.autocmd("User", {
+	pattern = "BlinkCmpMenuOpen",
+	callback = function()
+		vim.cmd("Copilot disable")
+	end,
+})
+
+G.autocmd("User", {
+	pattern = "BlinkCmpMenuClose",
+	callback = function()
+		vim.cmd("Copilot enable")
+	end,
+})
+
 G.autocmd({ "FocusLost", "BufLeave", "CompleteDone", "InsertLeave", "TextChanged" }, {
 	callback = function()
 		vim.cmd("silent! wall!")
