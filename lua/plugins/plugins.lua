@@ -3,9 +3,6 @@ return {
 		"RRethy/base16-nvim",
 	},
 	{
-		"echasnovski/mini.nvim",
-	},
-	{
 		"tpope/vim-fugitive",
 	},
 	{
@@ -40,19 +37,6 @@ return {
 		},
 	},
 	{
-		"windwp/nvim-autopairs",
-		event = "InsertEnter",
-		opts = {
-			enable_check_bracket_line = false,
-		},
-	},
-	{
-		"nvim-tree/nvim-web-devicons",
-		opts = {
-			color_icons = false,
-		},
-	},
-	{
 		"nickkadutskyi/jb.nvim",
 		lazy = false,
 		priority = 1000,
@@ -63,7 +47,6 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		-- branch = "main",
 		lazy = false,
 		opts = function()
 			local ts = require("nvim-treesitter.configs")
@@ -151,8 +134,10 @@ return {
 				prompt_title = false,
 				border = false,
 				layout_config = {
-					height = 10,
+					height = 0.2,
 					prompt_position = "bottom",
+					preview_cutoff = 120,
+					width = 0.8,
 				},
 				pickers = {
 					find_files = {
@@ -259,35 +244,6 @@ return {
 		},
 	},
 	{
-		"echasnovski/mini.surround",
-		opts = {
-			custom_surroundings = nil,
-			highlight_duration = 500,
-			mappings = {
-				add = "sa",
-				delete = "sd",
-				replace = "sc",
-			},
-			respect_selection_type = false,
-			search_method = "cover",
-			silent = false,
-		},
-	},
-	{
-		"echasnovski/mini.pick",
-		opts = {
-			window = {
-				config = {
-					height = 7,
-					width = 9999.0,
-					border = "none",
-				},
-				prompt_caret = "█",
-				prompt_prefix = " ",
-			},
-		},
-	},
-	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
 		opts = {
@@ -344,6 +300,11 @@ return {
 				"size",
 				"mtime",
 			},
+			lsp_file_methods = {
+				enabled = true,
+				timeout_ms = 1000,
+				autosave_changes = true,
+			},
 			win_options = {
 				number = false,
 				relativenumber = false,
@@ -356,28 +317,28 @@ return {
 				conceallevel = 3,
 				concealcursor = "nvic",
 			},
+			float = {
+				padding = 0,
+				max_width = vim.o.columns,
+				max_height = 0.2,
+				border = "none",
+				override = function(conf)
+					conf.anchor = "SW"
+					conf.row = vim.o.lines - 1
+					conf.col = 0
+					return conf
+				end,
+			},
 			delete_to_trash = false,
 			skip_confirm_for_simple_edits = true,
 			prompt_save_on_select_new_entry = false,
 			watch_for_changes = true,
 			constrain_cursor = "name",
 			keymaps = {
-				["g?"] = { "actions.show_help", mode = "n" },
-				["<CR>"] = "actions.select",
-				["<C-s>"] = { "actions.select", opts = { vertical = true } },
-				["<C-h>"] = { "actions.select", opts = { horizontal = true } },
-				["<C-t>"] = { "actions.select", opts = { tab = true } },
-				["<C-p>"] = "actions.preview",
-				["<C-c>"] = { "actions.close", mode = "n" },
-				["<C-l>"] = "actions.refresh",
-				["-"] = { "actions.parent", mode = "n" },
-				["_"] = { "actions.open_cwd", mode = "n" },
-				["`"] = { "actions.cd", mode = "n" },
-				["~"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
-				["gs"] = { "actions.change_sort", mode = "n" },
-				["gx"] = "actions.open_external",
-				["g."] = { "actions.toggle_hidden", mode = "n" },
-				["g\\"] = { "actions.toggle_trash", mode = "n" },
+				["q"] = { "actions.close", mode = "n" },
+				["<esc>"] = { "actions.close", mode = "n" },
+				["l"] = { "actions.select", mode = "n" },
+				["h"] = { "actions.parent", mode = "n" },
 				["gp"] = {
 					callback = function()
 						local oil = require("oil")
@@ -403,23 +364,9 @@ return {
 					{ "name", "asc" },
 				},
 			},
-			float = {
-				padding = 0,
-				max_width = 0.85,
-				max_height = 0.85,
-				border = "none",
-				preview_split = "below",
-			},
 			preview_win = {
 				update_on_cursor_moved = true,
 				preview_method = "fast_scratch",
-			},
-			preview = {
-				automatic = true,
-				update_on_cursor = true,
-				split = "horizontal",
-				-- width = 40,
-				-- height = 15,
 			},
 			confirmation = {
 				border = "none",
@@ -640,5 +587,24 @@ return {
 			subwordMovement = true,
 			customPatterns = {},
 		},
+	},
+	{
+		"echasnovski/mini.nvim",
+		config = function()
+			require("mini.surround").setup({
+				custom_surroundings = nil,
+				highlight_duration = 500,
+				mappings = {
+					add = "sa",
+					delete = "sd",
+					replace = "sc",
+				},
+				respect_selection_type = false,
+				search_method = "cover",
+				silent = false,
+			})
+			require("mini.pairs").setup()
+			require("mini.icons").setup()
+		end,
 	},
 }

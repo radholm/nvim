@@ -6,6 +6,7 @@ vim.cmd("colorscheme base16-sandcastle")
 
 local function apply_hls()
 	local bg = "#43454a"
+	local border_bg = vim.api.nvim_get_hl(0, { name = "TelescopeBorder" }).bg
 	vim.api.nvim_set_hl(0, "Folded", { bg = bg })
 	vim.api.nvim_set_hl(0, "TreesitterContextBottom", { underline = false })
 	vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { underline = false })
@@ -21,6 +22,14 @@ local function apply_hls()
 	vim.api.nvim_set_hl(0, "StatusLine", { bg = "NONE" })
 	vim.api.nvim_set_hl(0, "StatusLineNC", { bg = "NONE" })
 	vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "NONE" })
+	-- vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "NONE" })
+	vim.api.nvim_set_hl(0, "TelescopeSelection", { fg = "grey", bg = "NONE" })
+	vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = border_bg })
+	vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = border_bg })
+	vim.api.nvim_set_hl(0, "TelescopePromptPrefix", { bg = border_bg })
+	vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "NONE" })
+	vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "NONE" })
+	vim.api.nvim_set_hl(0, "NormalFloat", { bg = border_bg })
 end
 
 local function omit_hls()

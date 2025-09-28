@@ -12,11 +12,11 @@ end
 -- General navigation and buffer management
 G.keymap("n", "<leader>pv", function()
 	require("oil").open_float(nil, {
-		preview = {
-			horizontal = true,
-		},
+		-- preview = {
+		-- 	vertical = true,
+		-- },
 	})
-end, { desc = "Open Oil in float with horizontal preview" })
+end, { desc = "Open Oil" })
 G.keymap("n", "<leader>cp", "<cmd>Compile<cr>", { desc = "Compile mode" })
 G.keymap("n", "<leader>z", "<cmd>Goyo<cr>", { desc = "Zen mode" })
 G.keymap("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move selected lines down" })
@@ -26,7 +26,7 @@ G.keymap("n", ":", "q:i", { desc = "Command window" })
 G.keymap("n", "n", "nzzzv", { desc = "Next search result centered" })
 G.keymap("n", "N", "Nzzzv", { desc = "Prev search result centered" })
 G.keymap("n", "<esc>", ":bd<cr>", { desc = "Minimize buffer" })
-G.keymap("n", "q", ":bd<cr>", { desc = "Delete buffer" })
+G.keymap("n", "q", "<cmd>bd!<cr>", { desc = "Delete buffer" })
 
 -- Contextual <Esc>
 G.keymap("n", "<esc>", function()
@@ -52,7 +52,11 @@ local tb = require("telescope.builtin")
 
 G.keymap("n", "<leader>ff", wrap(tb.find_files, { previewer = false }), { desc = "Find files" })
 G.keymap("n", "<leader>fr", wrap(tb.resume), { desc = "Resume last Telescope" })
-G.keymap("n", "<leader>fg", wrap(tb.live_grep), { desc = "Live grep search" })
+G.keymap("n", "<leader>fg", function()
+	tb.live_grep({
+		cwd = require("oil").get_current_dir(),
+	})
+end, { desc = "Live grep search with Oil cwd" })
 G.keymap("n", "<leader><leader>", wrap(tb.buffers), { desc = "List open buffers" })
 G.keymap("n", "<leader>fh", wrap(tb.help_tags), { desc = "Find help tags" })
 G.keymap("n", "<leader>fu", wrap(tb.lsp_references), { desc = "Find LSP references" })
@@ -169,5 +173,3 @@ ts.setup({
 		},
 	},
 })
-
-vim.keymap.set("n", "<leader>asd", "<cmd>Pick files<cr>", { desc = "Pick files" })

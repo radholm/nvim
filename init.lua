@@ -11,7 +11,7 @@ set.guicursor = ""
 vim.cmd("command! W silent write")
 vim.cmd("command! Wq silent write | bd")
 vim.cmd("command! WQ silent write | bd")
-vim.cmd("command! Q bd")
+vim.cmd("command! Q silent bd!")
 vim.cmd("command! -bang -nargs=? W execute 'silent w' <q-args>")
 
 -- set.background = "dark"
@@ -173,16 +173,18 @@ G.autocmd("BufWritePre", {
 			"c",
 			"cpp",
 			"css",
+			"groovy",
 			"html",
 			"java",
-			"groovy",
 			"javascript",
+			"javascriptreact",
 			"json",
 			"lua",
 			"markdown",
 			"rust",
 			"scss",
 			"typescript",
+			"typescriptreact",
 			"typst",
 			"xml",
 			"yaml",
@@ -192,11 +194,6 @@ G.autocmd("BufWritePre", {
 		end
 	end,
 })
-
-G.usercmd("Rfinder", function()
-	local path = vim.api.nvim_buf_get_name(0)
-	os.execute("open -R " .. path)
-end, {})
 
 G.autocmd("User", {
 	pattern = "GoyoEnter",
