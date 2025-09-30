@@ -579,16 +579,6 @@ return {
 		dependencies = { "junegunn/limelight.vim" },
 	},
 	{
-		"chrisgrieser/nvim-spider",
-		lazy = true,
-		opts = {
-			skipInsignificantPunctuation = false,
-			consistentOperatorPending = true,
-			subwordMovement = true,
-			customPatterns = {},
-		},
-	},
-	{
 		"echasnovski/mini.nvim",
 		config = function()
 			require("mini.surround").setup({

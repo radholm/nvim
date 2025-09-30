@@ -128,10 +128,6 @@ G.keymap("o", "r", wrap(fl.remote), { desc = "Remote Flash" })
 G.keymap({ "o", "x" }, "R", wrap(fl.treesitter_search), { desc = "Treesitter Search" })
 G.keymap({ "c" }, "<C-l>", wrap(fl.toggle), { desc = "Toggle Flash Search" })
 
-G.keymap({ "n", "o", "x" }, "w", "<cmd>lua require('spider').motion('w')<cr>")
-G.keymap({ "n", "o", "x" }, "e", "<cmd>lua require('spider').motion('e')<cr>")
-G.keymap({ "n", "o", "x" }, "b", "<cmd>lua require('spider').motion('b')<cr>")
-
 -- MULTICURSOR
 local mc = require("multicursor-nvim")
 
