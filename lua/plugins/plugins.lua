@@ -7,6 +7,7 @@ return {
 	},
 	{
 		"github/copilot.vim",
+		version = "1.55.0",
 	},
 	{
 		"neovim/nvim-lspconfig",
