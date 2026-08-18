@@ -1,5 +1,9 @@
 require("globals")
 
+local args = vim.fn.argv()
+local no_session = (#args > 0)
+	or vim.fn.has("gui_running") == 0 and vim.fn.exists("v:servername") == 0 and vim.fn.index(vim.v.argv, "-f") >= 0
+
 local function get_session_name()
 	local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
 	local root = (git_root and git_root ~= "" and not git_root:match("fatal")) and git_root or vim.loop.cwd()
@@ -17,25 +21,29 @@ local shada_file = string.format("%s/%s.shada", shared .. "/shada", session_name
 vim.fn.mkdir(shared .. "/sessions", "p")
 vim.fn.mkdir(shared .. "/shada", "p")
 
-G.autocmd("VimEnter", {
-	callback = function()
-		if vim.fn.filereadable(session_file) == 1 then
-			vim.cmd.source(session_file)
-			vim.notify("Session loaded: " .. session_name, vim.log.levels.INFO, { timeout = 1000 })
-		end
-		if vim.fn.filereadable(shada_file) == 1 then
-			vim.cmd.rshada(shada_file)
-			vim.notify("Shada loaded: " .. session_name, vim.log.levels.INFO, { timeout = 1000 })
-		end
+if not no_session then
+	G.autocmd("VimEnter", {
+		callback = function()
+			if vim.fn.filereadable(session_file) == 1 then
+				vim.cmd.source(session_file)
+				vim.notify("Session loaded: " .. session_name, vim.log.levels.INFO, { timeout = 1000 })
+			end
+			if vim.fn.filereadable(shada_file) == 1 then
+				vim.cmd.rshada(shada_file)
+				vim.notify("Shada loaded: " .. session_name, vim.log.levels.INFO, { timeout = 1000 })
+			end
 
-		require("config.theme").apply_hls()
-		G.set_warp_title()
-	end,
-})
+			require("config.theme").apply_hls()
+			G.set_warp_title()
+		end,
+	})
+end
 
-G.autocmd("VimLeave", {
-	callback = function()
-		vim.cmd("silent! mksession! " .. session_file)
-		vim.cmd("silent! wshada! " .. shada_file)
-	end,
-})
+if not no_session then
+	G.autocmd("VimLeave", {
+		callback = function()
+			vim.cmd("silent! mksession! " .. session_file)
+			vim.cmd("silent! wshada! " .. shada_file)
+		end,
+	})
+end

@@ -117,6 +117,7 @@ local gitsigns = require("gitsigns")
 G.keymap("n", "<leader>h", wrap(gitsigns.nav_hunk, "next"), { desc = "Next hunk" })
 G.keymap("n", "<leader>H", wrap(gitsigns.nav_hunk, "prev"), { desc = "Previous hunk" })
 G.keymap("n", "<leader>gi", gitsigns.preview_hunk_inline, { desc = "Preview hunk" })
+G.keymap("n", "<leader>gro", gitsigns.reset_hunk, { desc = "Reset hunk" })
 G.keymap("n", "<leader>gg", "<cmd>G<cr>", { desc = "Open fugitive Git" })
 
 -- JUMPING
