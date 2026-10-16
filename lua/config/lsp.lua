@@ -1,7 +1,6 @@
 vim.lsp.enable({
 	"clangd",
 	"efm",
-	"groovyls",
 	"lua_ls",
 	"rust_analyzer",
 	"ts_ls",
@@ -36,21 +35,6 @@ vim.lsp.config("ts_ls", {
 	},
 })
 
-vim.lsp.config("groovyls", {
-	cmd = { "groovy-language-server" },
-	-- Classpath from local Maven repo; async so attach doesn't block the UI
-	on_attach = function(client)
-		local find = { "find", vim.env.HOME .. "/.m2/repository", "-type", "f", "-name", "*.jar" }
-		vim.system(find, { text = true }, vim.schedule_wrap(function(res)
-			client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, {
-				groovy = { classpath = vim.split(res.stdout or "", "\n", { trimempty = true }) },
-			})
-			client:notify("workspace/didChangeConfiguration", { settings = client.config.settings })
-			vim.notify("Groovy classpath generated", vim.log.levels.INFO)
-		end))
-	end,
-})
-
 -- https://github.com/creativenull/efmls-configs-nvim/tree/main/lua/efmls-configs
 local clang_format = require("efmls-configs.formatters.clang_format")
 local eslint = require("efmls-configs.linters.eslint_d")
@@ -69,7 +53,6 @@ local languages = {
 	css = { stylelint, prettier },
 	html = { prettier },
 	java = { gjf },
-	groovy = { gjf },
 	javascript = { eslint, prettier_d },
 	javascriptreact = { eslint, prettier_d },
 	json = { prettier_d },

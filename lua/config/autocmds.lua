@@ -54,7 +54,7 @@ autocmd("CmdwinEnter", {
 
 -- Format with efm on save
 local format_on_save = {
-	c = true, cpp = true, css = true, groovy = true, html = true, java = true,
+	c = true, cpp = true, css = true, html = true, java = true,
 	javascript = true, javascriptreact = true, json = true, lua = true, markdown = true,
 	rust = true, scss = true, typescript = true, typescriptreact = true, typst = true,
 	xml = true, yaml = true,
