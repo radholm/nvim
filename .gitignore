@@ -1,5 +1,4 @@
 sessions/*
-!lua/sessions.lua
 spell/
 undodir/
 .DS_Store

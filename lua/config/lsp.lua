@@ -1,5 +1,3 @@
-local capabilities = require("blink.cmp").get_lsp_capabilities()
-
 vim.lsp.enable({
 	"clangd",
 	"efm",
@@ -9,28 +7,24 @@ vim.lsp.enable({
 	"ts_ls",
 })
 
-G.lsp("*", {
-	capabilities = capabilities,
+vim.lsp.config("*", {
+	capabilities = require("blink.cmp").get_lsp_capabilities(),
 })
 
-G.lsp("lua_ls", {
+vim.lsp.config("lua_ls", {
 	settings = {
 		Lua = {
 			diagnostics = {
-				globals = { "vim", "bufnr", "G", "gitsigns" },
+				globals = { "vim" },
 			},
 			workspace = {
-				library = {
-					vim.env.VIMRUNTIME,
-					vim.fn.expand("$VIMRUNTIME/lua"),
-					vim.fn.expand("$XDG_CONFIG_HOME/nvim/lua"),
-				},
+				library = { vim.env.VIMRUNTIME, vim.fn.stdpath("config") .. "/lua" },
 			},
 		},
 	},
 })
 
-G.lsp("ts_ls", {
+vim.lsp.config("ts_ls", {
 	handlers = {
 		["textDocument/publishDiagnostics"] = function(_, result, ctx)
 			if result.diagnostics == nil then
@@ -46,7 +40,7 @@ G.lsp("ts_ls", {
 	},
 })
 
-G.lsp("groovyls", {
+vim.lsp.config("groovyls", {
 	cmd = { "groovy-language-server" },
 	on_attach = function(client, bufnr)
 		local function get_gradle_classpath()
@@ -93,13 +87,8 @@ local languages = {
 	javascriptreact = { eslint, prettier_d },
 	json = { prettier_d },
 	jsonc = { prettier_d },
-	lua = { stylelint, stylua },
+	lua = { stylua },
 	markdown = { prettier },
-	-- python = {
-	--   require("efmls-configs.linters.ruff"),
-	--   require("efmls-configs.formatters.ruff"),
-	--   require("efmls-configs.formatters.ruff_sort"),
-	-- },
 	rust = { rustfmt },
 	sh = { shfmt },
 	typescript = { eslint, prettier_d },
@@ -109,7 +98,7 @@ local languages = {
 	zsh = { shfmt },
 }
 
-G.lsp("efm", {
+vim.lsp.config("efm", {
 	filetypes = vim.tbl_keys(languages),
 	single_file_support = true,
 	init_options = {
@@ -135,8 +124,6 @@ vim.diagnostic.config({
 		style = "minimal",
 		max_width = 120,
 		header = "",
-		-- prefix = " ",
-		-- suffix = " ",
 		border = "none",
 		source = false,
 	},
