@@ -178,6 +178,7 @@ require("render-markdown").setup({
 	bullet = { icons = { "●", "○", "◆", "◇" } },
 	indent = { enabled = true, per_level = 4, skip_level = 0, skip_heading = true, icon = "" },
 	completions = { lsp = { enabled = true } },
+	latex = { enabled = false },
 })
 
 require("nvim-treesitter.configs").setup({

@@ -38,25 +38,16 @@ vim.lsp.config("ts_ls", {
 
 vim.lsp.config("groovyls", {
 	cmd = { "groovy-language-server" },
-	on_attach = function(client, bufnr)
-		local function get_gradle_classpath()
-			local jar_paths = {}
-			local handle = io.popen([[find ~/.m2/repository -type f -name "*.jar"]])
-			if handle then
-				for jar in handle:lines() do
-					table.insert(jar_paths, jar)
-				end
-				handle:close()
-			end
-			return jar_paths
-		end
-
-		local classpath = get_gradle_classpath()
-		client.config.settings = client.config.settings or {}
-		client.config.settings.groovy = client.config.settings.groovy or {}
-		client.config.settings.groovy.classpath = classpath
-		client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
-		vim.notify("Groovy classpath generated", vim.log.levels.INFO, { title = "Groovy LS" })
+	-- Classpath from local Maven repo; async so attach doesn't block the UI
+	on_attach = function(client)
+		local find = { "find", vim.env.HOME .. "/.m2/repository", "-type", "f", "-name", "*.jar" }
+		vim.system(find, { text = true }, vim.schedule_wrap(function(res)
+			client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, {
+				groovy = { classpath = vim.split(res.stdout or "", "\n", { trimempty = true }) },
+			})
+			client:notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+			vim.notify("Groovy classpath generated", vim.log.levels.INFO)
+		end))
 	end,
 })
 
@@ -96,7 +87,6 @@ local languages = {
 
 vim.lsp.config("efm", {
 	filetypes = vim.tbl_keys(languages),
-	single_file_support = true,
 	init_options = {
 		documentFormatting = true,
 		documentRangeFormatting = true,

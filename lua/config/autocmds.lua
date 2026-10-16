@@ -24,7 +24,7 @@ autocmd("BufEnter", {
 })
 
 -- Persist folds
-autocmd("BufWinLeave", { pattern = "*.*", command = "mkview" })
+autocmd("BufWinLeave", { pattern = "*.*", command = "silent! mkview" })
 autocmd("BufWinEnter", { pattern = "*.*", command = "silent! loadview" })
 
 -- Prose
@@ -61,7 +61,7 @@ local format_on_save = {
 }
 autocmd("BufWritePre", {
 	callback = function()
-		if format_on_save[vim.bo.filetype] then
+		if format_on_save[vim.bo.filetype] and #vim.lsp.get_clients({ bufnr = 0, name = "efm" }) > 0 then
 			vim.lsp.buf.format({ name = "efm" })
 		end
 	end,
