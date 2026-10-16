@@ -48,7 +48,7 @@ vim.pack.add({
 	gh("junegunn/limelight.vim"),
 	gh("MeanderingProgrammer/render-markdown.nvim"),
 	-- Editing
-	gh("nvim-treesitter/nvim-treesitter", "master"),
+	gh("nvim-treesitter/nvim-treesitter", "main"),
 	gh("nvim-treesitter/nvim-treesitter-context"),
 	gh("windwp/nvim-ts-autotag"),
 	gh("folke/flash.nvim", nil, "flash"),
@@ -181,10 +181,28 @@ require("render-markdown").setup({
 	latex = { enabled = false },
 })
 
-require("nvim-treesitter.configs").setup({
-	auto_install = true,
-	highlight = { enable = true, additional_vim_regex_highlighting = { "markdown" } },
-	indent = { enable = true },
+-- Treesitter highlight + indent per buffer; installs missing parsers on first use
+vim.api.nvim_create_autocmd("FileType", {
+	callback = function(ev)
+		local lang = vim.treesitter.language.get_lang(ev.match)
+		if not lang then
+			return
+		end
+		local function start()
+			if not pcall(vim.treesitter.start, ev.buf, lang) then
+				return
+			end
+			vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+			if lang == "markdown" then
+				vim.bo[ev.buf].syntax = "on"
+			end
+		end
+		if vim.treesitter.language.add(lang) then
+			start()
+		elseif vim.list_contains(require("nvim-treesitter").get_available(), lang) then
+			require("nvim-treesitter").install(lang):await(vim.schedule_wrap(start))
+		end
+	end,
 })
 require("treesitter-context").setup()
 require("nvim-ts-autotag").setup({
