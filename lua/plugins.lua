@@ -18,7 +18,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
 
 vim.g.compile_mode = {
 	default_command = "npm run ",
-	baleia_setup = true,
+	ansi_color = { kind = "render" },
 	error_regexp_table = {
 		typescript = {
 			regex = "^\\(.*\\.js\\):\\([0-9]\\{1,4}\\):\\([0-9]\\{1,4}\\)",
@@ -29,9 +29,12 @@ vim.g.compile_mode = {
 	},
 }
 
-local gh = function(repo, version)
-	return { src = "https://github.com/" .. repo, version = version }
+-- `mod`: skip loading at startup; load on first require(mod) instead
+local gh = function(repo, version, mod)
+	return { src = "https://github.com/" .. repo, version = version, data = mod }
 end
+
+local lazy, setup = {}, {} -- lazy: module -> pack name; setup: module -> fn
 
 vim.pack.add({
 	-- Libraries
@@ -48,28 +51,82 @@ vim.pack.add({
 	gh("nvim-treesitter/nvim-treesitter", "master"),
 	gh("nvim-treesitter/nvim-treesitter-context"),
 	gh("windwp/nvim-ts-autotag"),
-	gh("folke/flash.nvim"),
-	gh("jake-stewart/multicursor.nvim"),
+	gh("folke/flash.nvim", nil, "flash"),
+	gh("jake-stewart/multicursor.nvim", nil, "multicursor-nvim"),
 	gh("rafamadriz/friendly-snippets"),
 	gh("saghen/blink.cmp", vim.version.range("1")),
 	-- Navigation
-	gh("nvim-telescope/telescope.nvim"),
+	gh("nvim-telescope/telescope.nvim", nil, "telescope"),
 	gh("stevearc/oil.nvim"),
-	gh("r0nsha/qfpreview.nvim"),
+	gh("r0nsha/qfpreview.nvim", nil, "qfpreview"),
 	-- Git
 	gh("tpope/vim-fugitive"),
 	gh("lewis6991/gitsigns.nvim"),
 	-- LSP / tools
 	gh("neovim/nvim-lspconfig"),
 	gh("creativenull/efmls-configs-nvim"),
-	gh("mason-org/mason.nvim"),
+	gh("mason-org/mason.nvim", nil, "mason"),
 	gh("m00qek/baleia.nvim", "v1.3.0"),
-	gh("ej-shafran/compile-mode.nvim", vim.version.range("5")),
-	gh("chomosuke/typst-preview.nvim"),
+	gh("ej-shafran/compile-mode.nvim", vim.version.range("5"), "compile-mode"),
+	gh("chomosuke/typst-preview.nvim", nil, "typst-preview"),
 	-- AI
 	gh("github/copilot.vim", "v1.55.0"),
-	gh("CopilotC-Nvim/CopilotChat.nvim", "v4.5.0"),
-}, { confirm = false })
+	gh("CopilotC-Nvim/CopilotChat.nvim", "v4.5.0", "CopilotChat"),
+}, {
+	confirm = false,
+	load = function(p)
+		if p.spec.data then
+			lazy[p.spec.data] = p.spec.name
+		else
+			vim.cmd.packadd({ p.spec.name, bang = true })
+		end
+	end,
+})
+
+-- On first require of a lazy module: packadd its plugin, then run setup[mod]
+table.insert(package.loaders, 2, function(mod)
+	local root = mod:match("^[^.]+")
+	local pack = lazy[root]
+	if not pack then
+		return
+	end
+	lazy[root] = nil
+	vim.cmd.packadd(pack)
+	local preloaded = package.loaded[mod] -- plugin/ files may already require it
+	return function()
+		local m = preloaded
+		for _, searcher in ipairs(package.loaders) do
+			if m then
+				break
+			end
+			local loader = searcher(mod)
+			if type(loader) == "function" then
+				m = loader(mod)
+			end
+		end
+		package.loaded[mod] = m
+		if setup[root] then
+			setup[root]()
+		end
+		return m
+	end
+end)
+
+local function load_on(event, pattern, mod)
+	vim.api.nvim_create_autocmd(event, {
+		pattern = pattern,
+		once = true,
+		callback = function()
+			require(mod)
+		end,
+	})
+end
+load_on("CmdUndefined", "Telescope", "telescope")
+load_on("CmdUndefined", "CopilotChat*", "CopilotChat")
+load_on("CmdUndefined", "Mason*", "mason")
+load_on("CmdUndefined", { "Compile", "Recompile", "*Error", "QuickfixErrors", "NextErrorFollow" }, "compile-mode")
+load_on("FileType", "typst", "typst-preview")
+load_on("FileType", "qf", "qfpreview")
 
 local keys = require("config.keymaps")
 
@@ -179,49 +236,30 @@ require("gitsigns").setup({
 	current_line_blame = true,
 	current_line_blame_opts = { delay = 0 },
 })
-require("mason").setup()
 
--- Not needed for first draw: set up after startup
-vim.schedule(function()
-	require("multicursor-nvim").setup({ signs = false })
-	keys.multicursor(require("multicursor-nvim"))
-	require("mini.pairs").setup()
-	require("mini.surround").setup({ mappings = keys.surround, search_method = "cover" })
+-- What mason.setup() does at startup; full setup waits for :Mason*
+vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
+function setup.mason()
+	require("mason").setup()
+end
 
-	require("which-key").setup({
-		preset = "helix",
-		delay = 500,
-		win = { border = "none", padding = { 0, 0, 0, 0 }, title = false },
-		layout = { height = { min = 1, max = 20 }, width = { min = 1, max = 50 }, spacing = 1, align = "left" },
-	})
+-- Lazy plugin setups, run on first require (see package.loaders above)
+setup["multicursor-nvim"] = function()
+	local mc = require("multicursor-nvim")
+	mc.setup({ signs = false })
+	keys.multicursor(mc)
+end
 
+function setup.flash()
 	require("flash").setup({
 		labels = "asdfghjkl",
 		jump = { autojump = true },
 		label = { rainbow = { enabled = true, shade = 2 } },
 		modes = { char = { enabled = false } },
 	})
+end
 
-	require("blink.cmp").setup({
-		keymap = keys.blink,
-		appearance = { nerd_font_variant = "mono" },
-		completion = {
-			accept = { auto_brackets = { enabled = true } },
-			documentation = { auto_show = true },
-			menu = {
-				draw = {
-					columns = { { "kind_icon", "label", gap = 1 }, { "kind", "label_description", gap = 1 } },
-				},
-			},
-		},
-		sources = {
-			default = { "lsp", "path", "snippets", "buffer" },
-			min_keyword_length = function(ctx)
-				return ctx.trigger.kind == "manual" and 0 or 2
-			end,
-		},
-	})
-
+function setup.telescope()
 	require("telescope").setup({
 		defaults = {
 			file_ignore_patterns = {
@@ -251,10 +289,17 @@ vim.schedule(function()
 			buffers = { ignore_current_buffer = true, sort_lastused = true, mappings = keys.telescope_buffers },
 		},
 	})
+end
 
+function setup.qfpreview()
 	require("qfpreview").setup()
-	require("typst-preview").setup()
+end
 
+setup["typst-preview"] = function()
+	require("typst-preview").setup()
+end
+
+function setup.CopilotChat()
 	require("CopilotChat").setup({
 		model = "gpt-4.1",
 		temperature = 0.1,
@@ -265,5 +310,38 @@ vim.schedule(function()
 		show_folds = false,
 		show_help = false,
 		auto_insert_mode = false,
+	})
+end
+
+-- Not needed for first draw: set up after startup
+vim.schedule(function()
+	require("mini.pairs").setup()
+	require("mini.surround").setup({ mappings = keys.surround, search_method = "cover" })
+
+	require("which-key").setup({
+		preset = "helix",
+		delay = 500,
+		win = { border = "none", padding = { 0, 0, 0, 0 }, title = false },
+		layout = { height = { min = 1, max = 20 }, width = { min = 1, max = 50 }, spacing = 1, align = "left" },
+	})
+
+	require("blink.cmp").setup({
+		keymap = keys.blink,
+		appearance = { nerd_font_variant = "mono" },
+		completion = {
+			accept = { auto_brackets = { enabled = true } },
+			documentation = { auto_show = true },
+			menu = {
+				draw = {
+					columns = { { "kind_icon", "label", gap = 1 }, { "kind", "label_description", gap = 1 } },
+				},
+			},
+		},
+		sources = {
+			default = { "lsp", "path", "snippets", "buffer" },
+			min_keyword_length = function(ctx)
+				return ctx.trigger.kind == "manual" and 0 or 2
+			end,
+		},
 	})
 end)

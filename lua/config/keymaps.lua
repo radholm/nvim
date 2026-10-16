@@ -71,7 +71,7 @@ map("i", "<c-l>", "<Plug>(copilot-accept-word)", { desc = "Copilot accept word" 
 map("i", "<right>", "<Plug>(copilot-accept-word)", { desc = "Copilot accept word" })
 map("i", "<c-k>", "<Plug>(copilot-previous)", { desc = "Copilot previous" })
 map("i", "<c-j>", "<Plug>(copilot-next)", { desc = "Copilot next" })
-map("n", "<leader>gh", "<cmd>CopilotChatToggle<cr>", { desc = "Copilot chat" })
+map("n", "<leader>gh", call("CopilotChat", "toggle"), { desc = "Copilot chat" })
 map("n", "<leader>gr", function()
 	local chat = require("CopilotChat")
 	chat.open()
