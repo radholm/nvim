@@ -71,13 +71,9 @@ vim.pack.add({
 	gh("CopilotC-Nvim/CopilotChat.nvim", "v4.5.0"),
 }, { confirm = false })
 
--- Multicursor must be set up before keymaps registers its layer
-require("multicursor-nvim").setup({ signs = false })
 local keys = require("config.keymaps")
 
 require("mini.icons").setup()
-require("mini.pairs").setup()
-require("mini.surround").setup({ mappings = keys.surround, search_method = "cover" })
 
 require("lualine").setup({
 	options = {
@@ -112,13 +108,6 @@ require("lualine").setup({
 	inactive_sections = {},
 })
 
-require("which-key").setup({
-	preset = "helix",
-	delay = 500,
-	win = { border = "none", padding = { 0, 0, 0, 0 }, title = false },
-	layout = { height = { min = 1, max = 20 }, width = { min = 1, max = 50 }, spacing = 1, align = "left" },
-})
-
 require("render-markdown").setup({
 	file_types = { "markdown", "copilot-chat" },
 	heading = {
@@ -142,63 +131,6 @@ require("nvim-treesitter.configs").setup({
 require("treesitter-context").setup()
 require("nvim-ts-autotag").setup({
 	opts = { enable_close = true, enable_rename = true, enable_close_on_slash = true },
-})
-
-require("flash").setup({
-	labels = "asdfghjkl",
-	jump = { autojump = true },
-	label = { rainbow = { enabled = true, shade = 2 } },
-	modes = { char = { enabled = false } },
-})
-
-require("blink.cmp").setup({
-	keymap = keys.blink,
-	appearance = { nerd_font_variant = "mono" },
-	completion = {
-		accept = { auto_brackets = { enabled = true } },
-		documentation = { auto_show = true },
-		menu = {
-			draw = {
-				columns = { { "kind_icon", "label", gap = 1 }, { "kind", "label_description", gap = 1 } },
-			},
-		},
-	},
-	sources = {
-		default = { "lsp", "path", "snippets", "buffer" },
-		min_keyword_length = function(ctx)
-			return ctx.trigger.kind == "manual" and 0 or 2
-		end,
-	},
-})
-
-require("telescope").setup({
-	defaults = {
-		file_ignore_patterns = {
-			"node_modules",
-			"build",
-			".git",
-			"package-lock.json",
-			"*.vsd*",
-			"undodir",
-			"target",
-			"nvim-pack-lock.json",
-			"sessions",
-		},
-		selection_caret = "  ",
-		prompt_prefix = "  ",
-		entry_prefix = "  ",
-		sorting_strategy = "ascending",
-		layout_strategy = "bottom_pane",
-		results_title = false,
-		prompt_title = false,
-		border = false,
-		layout_config = { height = 0.2, prompt_position = "bottom", preview_cutoff = 120, width = 0.8 },
-		path_display = { "truncate" },
-	},
-	pickers = {
-		colorscheme = { enable_preview = true },
-		buffers = { ignore_current_buffer = true, sort_lastused = true, mappings = keys.telescope_buffers },
-	},
 })
 
 require("oil").setup({
@@ -247,19 +179,91 @@ require("gitsigns").setup({
 	current_line_blame = true,
 	current_line_blame_opts = { delay = 0 },
 })
-
-require("qfpreview").setup()
-require("typst-preview").setup()
 require("mason").setup()
 
-require("CopilotChat").setup({
-	model = "gpt-4.1",
-	temperature = 0.1,
-	highlight_headers = true,
-	headers = { user = "> [!NOTE] User ", assistant = "> [!HINT] Assistant ", tool = "🔧" },
-	insert_at_end = false,
-	separator = " ",
-	show_folds = false,
-	show_help = false,
-	auto_insert_mode = false,
-})
+-- Not needed for first draw: set up after startup
+vim.schedule(function()
+	require("multicursor-nvim").setup({ signs = false })
+	keys.multicursor(require("multicursor-nvim"))
+	require("mini.pairs").setup()
+	require("mini.surround").setup({ mappings = keys.surround, search_method = "cover" })
+
+	require("which-key").setup({
+		preset = "helix",
+		delay = 500,
+		win = { border = "none", padding = { 0, 0, 0, 0 }, title = false },
+		layout = { height = { min = 1, max = 20 }, width = { min = 1, max = 50 }, spacing = 1, align = "left" },
+	})
+
+	require("flash").setup({
+		labels = "asdfghjkl",
+		jump = { autojump = true },
+		label = { rainbow = { enabled = true, shade = 2 } },
+		modes = { char = { enabled = false } },
+	})
+
+	require("blink.cmp").setup({
+		keymap = keys.blink,
+		appearance = { nerd_font_variant = "mono" },
+		completion = {
+			accept = { auto_brackets = { enabled = true } },
+			documentation = { auto_show = true },
+			menu = {
+				draw = {
+					columns = { { "kind_icon", "label", gap = 1 }, { "kind", "label_description", gap = 1 } },
+				},
+			},
+		},
+		sources = {
+			default = { "lsp", "path", "snippets", "buffer" },
+			min_keyword_length = function(ctx)
+				return ctx.trigger.kind == "manual" and 0 or 2
+			end,
+		},
+	})
+
+	require("telescope").setup({
+		defaults = {
+			file_ignore_patterns = {
+				"node_modules",
+				"build",
+				".git",
+				"package-lock.json",
+				"*.vsd*",
+				"undodir",
+				"target",
+				"nvim-pack-lock.json",
+				"sessions",
+			},
+			selection_caret = "  ",
+			prompt_prefix = "  ",
+			entry_prefix = "  ",
+			sorting_strategy = "ascending",
+			layout_strategy = "bottom_pane",
+			results_title = false,
+			prompt_title = false,
+			border = false,
+			layout_config = { height = 0.2, prompt_position = "bottom", preview_cutoff = 120, width = 0.8 },
+			path_display = { "truncate" },
+		},
+		pickers = {
+			colorscheme = { enable_preview = true },
+			buffers = { ignore_current_buffer = true, sort_lastused = true, mappings = keys.telescope_buffers },
+		},
+	})
+
+	require("qfpreview").setup()
+	require("typst-preview").setup()
+
+	require("CopilotChat").setup({
+		model = "gpt-4.1",
+		temperature = 0.1,
+		highlight_headers = true,
+		headers = { user = "> [!NOTE] User ", assistant = "> [!HINT] Assistant ", tool = "🔧" },
+		insert_at_end = false,
+		separator = " ",
+		show_folds = false,
+		show_help = false,
+		auto_insert_mode = false,
+	})
+end)

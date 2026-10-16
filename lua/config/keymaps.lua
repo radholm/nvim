@@ -125,7 +125,6 @@ map({ "o", "x" }, "R", call("flash", "treesitter_search"), { desc = "Treesitter 
 map("c", "<c-l>", call("flash", "toggle"), { desc = "Toggle flash search" })
 
 -- Multicursor
-local mc = require("multicursor-nvim")
 map({ "n", "x" }, "<up>", call("multicursor-nvim", "lineAddCursor", -1), { desc = "Add cursor up" })
 map({ "n", "x" }, "<down>", call("multicursor-nvim", "lineAddCursor", 1), { desc = "Add cursor down" })
 map({ "n", "x" }, "<leader><up>", call("multicursor-nvim", "lineSkipCursor", -1), { desc = "Skip cursor up" })
@@ -134,18 +133,21 @@ map({ "n", "x" }, "<leader>n", call("multicursor-nvim", "matchAddCursor", 1), { 
 map({ "n", "x" }, "<leader>s", call("multicursor-nvim", "matchSkipCursor", 1), { desc = "Skip next match" })
 map({ "n", "x" }, "<leader>N", call("multicursor-nvim", "matchAddCursor", -1), { desc = "Add prev match" })
 map({ "n", "x" }, "<leader>S", call("multicursor-nvim", "matchSkipCursor", -1), { desc = "Skip prev match" })
-mc.addKeymapLayer(function(set)
-	set({ "n", "x" }, "<left>", mc.prevCursor)
-	set({ "n", "x" }, "<right>", mc.nextCursor)
-	set({ "n", "x" }, "<leader>x", mc.deleteCursor)
-	set("n", "<esc>", function()
-		if mc.cursorsEnabled() then
-			mc.clearCursors()
-		else
-			mc.enableCursors()
-		end
+-- Layer needs mc.setup() first; called from plugins.lua
+function M.multicursor(mc)
+	mc.addKeymapLayer(function(set)
+		set({ "n", "x" }, "<left>", mc.prevCursor)
+		set({ "n", "x" }, "<right>", mc.nextCursor)
+		set({ "n", "x" }, "<leader>x", mc.deleteCursor)
+		set("n", "<esc>", function()
+			if mc.cursorsEnabled() then
+				mc.clearCursors()
+			else
+				mc.enableCursors()
+			end
+		end)
 	end)
-end)
+end
 
 -- mini.surround
 M.surround = { add = "sa", delete = "sd", replace = "sc" }
